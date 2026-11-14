@@ -8,6 +8,14 @@
 - Persistencia: JPA / Hibernate + base H2 embebida en archivo (`./data/bolsinesdb`)
 - GPS Tracker: API mock de la cátedra (`dsi-api-bolsines`, puerto 8080)
 
+## Antes de la primera vez
+1. Clonar la API del GPS de la cátedra (en otra carpeta, no dentro de este repo):
+   `git clone https://github.com/LiberaeMentis/dsi-api-bolsines.git`
+2. Copiar `docs/api-gps/InMemoryBolsinRepository.java` de este repo sobre
+   `dsi-api-bolsines/src/main/java/ar/edu/dsi/gpstracker/repository/InMemoryBolsinRepository.java`
+   (agrega los bolsines 113 a 118 para ver varios en el mapa; ver `docs/api-gps/LEEME.md`).
+3. (Opcional) Configurar la API key de Google Maps (ver más abajo).
+
 ## Cómo levantarlo
 Se necesitan **dos terminales**.
 
@@ -43,6 +51,11 @@ Sin key la app funciona igual: en lugar del mapa muestra la lista de bolsines.
 - **A4**: botón *Cancelar*.
 - **A5**: en la confirmación, *No enviar*.
 - El correo del CU 31 está **simulado**: se ve en la consola (`[CU 31 - SIMULADO] Correo enviado`).
+
+## Documentación
+- `docs/Guia_PPAI_G7_CU36.pdf`: guía del proyecto y de la defensa (patrón, flujos, persistencia, DER, preguntas).
+- `docs/decisiones.md`: registro de decisiones de diseño e implementación.
+- `modelado/PPAI_G7_Diseno.mdj`: diagramas (StarUML), con el Adapter rediseñado.
 
 ## Ver la base de datos
 http://localhost:8081/h2-console · JDBC URL `jdbc:h2:file:./data/bolsinesdb` · usuario `sa` · sin contraseña.
