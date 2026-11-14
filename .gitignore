@@ -1,0 +1,19 @@
+### Maven ###
+target/
+
+### Base de datos H2 (se genera sola al levantar la app) ###
+data/
+
+### Configuración local (API key de Google Maps) ###
+config/local.properties
+
+### IDEs ###
+.idea/
+*.iml
+.vscode/
+out/
+bin/
+
+### SO ###
+.DS_Store
+Thumbs.db

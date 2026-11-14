@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Consultar seguimiento de bolsines</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+<header class="barra">
+    <h1>Sistema Bolsines</h1>
+    <span class="usuario" th:if="${nombreCMUsuario}" th:text="${nombreCMUsuario}"></span>
+</header>
+<main>
+    <nav class="migas"><a th:href="@{/menu}">Menú</a> › Consultar seguimiento de bolsines</nav>
+    <h2 th:text="${titulo}">Consultar seguimiento de bolsines</h2>
+    <p class="subtitulo">Ubicación de los bolsines enviados desde tu comisión médica.</p>
+
+    <div class="aviso error" th:if="${error}" th:text="${error}"></div>
+
+    <div class="tarjeta" th:if="${nombreCMUsuario}">
+        Comisión médica del usuario: <span class="dato-cm" th:text="${nombreCMUsuario}"></span>
+    </div>
+
+    <!-- A1: no se encuentran bolsines en estado enviado -->
+    <div class="aviso alerta" th:if="${sinBolsines}">
+        No se encontraron bolsines en estado <b>Enviado</b> desde tu comisión médica.
+    </div>
+
+    <!-- A3: el GPS Tracker no pudo informar la ubicación -->
+    <div class="aviso alerta" th:if="${bolsinesSinUbicacion != null and !bolsinesSinUbicacion.isEmpty()}">
+        El GPS Tracker no pudo informar la ubicación de:
+        <b th:each="n, st : ${bolsinesSinUbicacion}" th:text="${'bolsín ' + n + (st.last ? '' : ', ')}"></b>
+    </div>
+
+    <div class="grilla" th:if="${mapa}">
+        <div>
+        <div class="tarjeta">
+            <div id="mapa" th:if="${mapa.tieneApiKey()}"></div>
+            <div class="sin-mapa" th:unless="${mapa.tieneApiKey()}">
+                <div>
+                    <b>Mapa no disponible</b><br>
+                    Falta configurar la API key de Google Maps (ver README).<br>
+                    Podés seleccionar el bolsín desde la lista.
+                </div>
+            </div>
+        </div>
+        <div class="acciones" style="margin-top:0">
+            <a class="btn peligro" th:href="@{/consultar-bolsines/cancelar}">Cancelar</a>
+        </div>
+        </div>
+
+        <div>
+            <div class="tarjeta filtros">
+                <b>Filtrar</b>
+                <label for="filtroPrecinto">Número de precinto</label>
+                <input id="filtroPrecinto" type="text" placeholder="Ej: P-000101">
+                <label for="filtroCM">CM destino</label>
+                <select id="filtroCM">
+                    <option value="">Todas</option>
+                    <option th:each="o : ${filtroCMDestino}" th:value="${o.codigo()}" th:text="${o.nombre()}"></option>
+                </select>
+                <div class="aviso alerta" id="avisoPrecinto" style="display:none;margin-top:12px">
+                    No se encuentra bolsín con el número de precinto ingresado.
+                </div>
+            </div>
+
+            <div class="tarjeta">
+                <b th:if="${solicitarSeleccion}">Seleccioná un bolsín</b>
+                <table>
+                    <thead><tr><th>Bolsín</th><th>Precinto</th><th>CM destino</th><th></th></tr></thead>
+                    <tbody>
+                    <tr th:each="b : ${mapa.marcadores()}" th:attr="data-nro=${b.nroBolsin()},data-precinto=${b.numeroPrecinto()},data-cm=${b.codigoCMDestino()}">
+                        <td th:text="${b.nroBolsin()}"></td>
+                        <td class="precinto" th:text="${b.numeroPrecinto()}"></td>
+                        <td th:text="${b.nombreCMDestino()}"></td>
+                        <td>
+                            <form th:action="@{/consultar-bolsines/seleccion}" method="post">
+                                <input type="hidden" name="nroBolsin" th:value="${b.nroBolsin()}">
+                                <button class="btn primario chico" type="submit">Seleccionar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="acciones" th:unless="${mapa}">
+        <a class="btn peligro" th:href="@{/consultar-bolsines/cancelar}">Cancelar</a>
+    </div>
+</main>
+
+<form id="formSeleccion" th:action="@{/consultar-bolsines/seleccion}" method="post" style="display:none">
+    <input type="hidden" name="nroBolsin" id="nroSeleccionado">
+</form>
+
+<script th:if="${mapa}" th:inline="javascript">
+    const marcadores = /*[[${mapa.marcadores()}]]*/ [];
+    const centro = { lat: /*[[${mapa.centroLatitud()}]]*/ -34.0, lng: /*[[${mapa.centroLongitud()}]]*/ -64.0 };
+    const zoom = /*[[${mapa.zoom()}]]*/ 5;
+    let marcadoresMapa = [];
+
+    function seleccionar(nro) {
+        document.getElementById('nroSeleccionado').value = nro;
+        document.getElementById('formSeleccion').submit();
+    }
+
+    function initMap() {
+        const mapa = new google.maps.Map(document.getElementById('mapa'), { center: centro, zoom: zoom });
+        const info = new google.maps.InfoWindow();
+        marcadores.forEach(b => {
+            const m = new google.maps.Marker({ position: { lat: b.latitud, lng: b.longitud }, map: mapa,
+                                               title: 'Bolsín ' + b.nroBolsin });
+            m.addListener('click', () => {
+                info.setContent('<b>Bolsín ' + b.nroBolsin + '</b><br>Precinto: ' + b.numeroPrecinto +
+                    '<br>Destino: ' + b.nombreCMDestino + '<br>Última actualización: ' + b.fechaHoraUltimaActualizacion.replace('T', ' ') +
+                    '<br><br><button class="btn primario chico" onclick="seleccionar(' + b.nroBolsin + ')">Seleccionar</button>');
+                info.open(mapa, m);
+            });
+            marcadoresMapa.push({ datos: b, marcador: m });
+        });
+    }
+
+    // Filtros por número de precinto y CM destino (A2 si no se encuentra el precinto)
+    function aplicarFiltros() {
+        const precinto = document.getElementById('filtroPrecinto').value.trim().toUpperCase();
+        const cm = document.getElementById('filtroCM').value;
+        let visibles = 0;
+        document.querySelectorAll('tbody tr[data-nro]').forEach(tr => {
+            const ok = (!precinto || tr.dataset.precinto.toUpperCase().includes(precinto)) && (!cm || tr.dataset.cm === cm);
+            tr.classList.toggle('oculto', !ok);
+            if (ok) visibles++;
+        });
+        marcadoresMapa.forEach(x => {
+            const ok = (!precinto || x.datos.numeroPrecinto.toUpperCase().includes(precinto)) && (!cm || x.datos.codigoCMDestino === cm);
+            x.marcador.setVisible(ok);
+        });
+        document.getElementById('avisoPrecinto').style.display = (precinto && visibles === 0) ? 'block' : 'none';
+    }
+    document.getElementById('filtroPrecinto').addEventListener('input', aplicarFiltros);
+    document.getElementById('filtroCM').addEventListener('change', aplicarFiltros);
+</script>
+<script th:if="${mapa != null and mapa.tieneApiKey()}" async defer
+        th:src="|https://maps.googleapis.com/maps/api/js?key=${mapa.apiKey()}&callback=initMap|"></script>
+</body>
+</html>

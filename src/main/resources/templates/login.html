@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar sesión - Sistema Bolsines</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body class="fondo-fuerte">
+<header class="barra"><h1>Sistema Bolsines</h1></header>
+<main class="angosto" style="max-width:400px;margin-top:60px">
+    <div class="tarjeta login">
+        <h2>Iniciar sesión</h2>
+        <p class="subtitulo">Ingresá con tu usuario de la comisión médica.</p>
+
+        <div class="aviso ok" th:if="${param.salio}">Cerraste sesión correctamente.</div>
+        <div class="aviso error" th:if="${error}" th:text="${error}"></div>
+
+        <form th:action="@{/login}" method="post" class="filtros">
+            <label for="usuario">Usuario</label>
+            <input id="usuario" name="usuario" type="text" required autofocus th:value="${usuarioIngresado}">
+            <label for="contrasena">Contraseña</label>
+            <input id="contrasena" name="contrasena" type="password" required>
+            <div class="acciones"><button class="btn primario ancho" type="submit">Ingresar</button></div>
+        </form>
+
+        <p class="nota" style="margin-top:18px">
+            Usuarios de prueba (contraseña <b>1234</b>):<br>
+            <b>eb.cordoba</b> – Córdoba Capital (flujo principal) ·
+            <b>eb.jujuy</b> – Jujuy (sin bolsines enviados)
+        </p>
+    </div>
+</main>
+</body>
+</html>

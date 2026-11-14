@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="2;url=/menu">
+    <title>Acceso correcto - Sistema Bolsines</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body class="fondo-fuerte">
+<header class="barra"><h1>Sistema Bolsines</h1></header>
+<main class="angosto" style="max-width:400px;margin-top:60px">
+    <div class="tarjeta login" style="text-align:center">
+        <div class="tilde">✓</div>
+        <h2>Acceso correcto</h2>
+        <p class="subtitulo">Bienvenido/a, <b th:text="${nombreUsuario}"></b>. Te estamos llevando al menú…</p>
+        <a class="btn navegar" th:href="@{/menu}">Ir al menú</a>
+    </div>
+</main>
+</body>
+</html>

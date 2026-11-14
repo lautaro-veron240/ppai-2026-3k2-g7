@@ -1,0 +1,3 @@
+# Copiar este archivo como "local.properties" (en esta misma carpeta)
+# y pegar la API key de Google Maps. Este archivo NO se sube a GitHub.
+google.maps.api-key=PEGAR_ACA_LA_KEY

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Menú - Sistema Bolsines</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body class="fondo-fuerte">
+<header class="barra">
+    <h1>Sistema Bolsines</h1>
+    <form th:action="@{/logout}" method="post" class="usuario">
+        <span th:text="${nombreUsuario}"></span>
+        <button class="btn chico peligro" type="submit" style="margin-left:10px">Cerrar sesión</button>
+    </form>
+</header>
+<main style="max-width:720px">
+    <div class="aviso alerta" th:if="${param.cancelado}">Se canceló la consulta de seguimiento de bolsines.</div>
+
+    <h2>Menú principal</h2>
+    <p class="subtitulo">
+        <span th:text="${nombreEmpleado}"></span> ·
+        <span th:text="${nombreRol}"></span> ·
+        <span class="dato-cm" th:text="${nombreCM}"></span>
+    </p>
+
+    <div class="menu-opciones">
+        <a class="tarjeta opcion" th:href="@{/consultar-bolsines}">
+            <b>Consultar seguimiento de bolsines</b>
+            <span>Ver en el mapa la ubicación de los bolsines enviados desde tu comisión médica.</span>
+        </a>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmar envío de correo</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+<header class="barra"><h1>Sistema Bolsines</h1></header>
+<main class="medio">
+    <nav class="migas"><a th:href="@{/menu}">Menú</a> › <a th:href="@{/consultar-bolsines}">Consultar seguimiento de bolsines</a> › Confirmar correo</nav>
+    <h2>¿Enviar la ubicación por correo?</h2>
+    <p class="subtitulo">Se le enviará un correo al Gerente de la Comisión Médica destino con la ubicación del bolsín.</p>
+
+    <div class="grilla-confirmacion">
+        <div class="tarjeta" style="margin-bottom:0">
+            <dl class="detalle">
+                <dt>Bolsín</dt><dd th:text="${bolsin.nroBolsin()}"></dd>
+                <dt>Precinto</dt><dd th:text="${bolsin.numeroPrecinto()}"></dd>
+                <dt>CM destino</dt><dd th:text="${bolsin.nombreCMDestino()}"></dd>
+                <dt>Coordenadas</dt><dd th:text="${bolsin.latitud() + ', ' + bolsin.longitud()}"></dd>
+                <dt>Última actualización</dt><dd th:text="${#strings.replace(bolsin.fechaHoraUltimaActualizacion(), 'T', ' ')}"></dd>
+            </dl>
+            <div class="acciones">
+                <form th:action="@{/consultar-bolsines/confirmacion}" method="post">
+                    <input type="hidden" name="confirma" value="true">
+                    <button class="btn primario" type="submit">Sí, enviar correo</button>
+                </form>
+                <form th:action="@{/consultar-bolsines/confirmacion}" method="post">
+                    <input type="hidden" name="confirma" value="false">
+                    <button class="btn peligro" type="submit">No enviar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="tarjeta" style="margin-bottom:0;padding:10px">
+            <div id="mapaBolsin" th:if="${mapa.tieneApiKey()}"></div>
+            <div class="sin-mapa" th:unless="${mapa.tieneApiKey()}" style="height:100%;min-height:340px">
+                Mapa no disponible (falta la API key de Google Maps).
+            </div>
+        </div>
+    </div>
+</main>
+
+<script th:if="${mapa.tieneApiKey()}" th:inline="javascript">
+    const b = /*[[${bolsin}]]*/ {};
+    function initMap() {
+        const posicion = { lat: b.latitud, lng: b.longitud };
+        const mapa = new google.maps.Map(document.getElementById('mapaBolsin'), { center: posicion, zoom: 8 });
+        const marcador = new google.maps.Marker({ position: posicion, map: mapa, title: 'Bolsín ' + b.nroBolsin });
+        const info = new google.maps.InfoWindow({ content: '<b>Bolsín ' + b.nroBolsin + '</b><br>Destino: ' + b.nombreCMDestino });
+        info.open(mapa, marcador);
+    }
+</script>
+<script th:if="${mapa.tieneApiKey()}" async defer
+        th:src="|https://maps.googleapis.com/maps/api/js?key=${mapa.apiKey()}&callback=initMap|"></script>
+</body>
+</html>

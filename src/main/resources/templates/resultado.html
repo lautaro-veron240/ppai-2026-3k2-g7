@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+<header class="barra"><h1>Sistema Bolsines</h1></header>
+<main class="angosto">
+    <nav class="migas"><a th:href="@{/menu}">Menú</a> › Consultar seguimiento de bolsines › Resultado</nav>
+    <div class="tarjeta">
+        <div class="aviso" th:classappend="${resultado.correoEnviado()} ? 'ok' : 'alerta'" th:text="${resultado.mensaje()}"></div>
+        <div class="acciones">
+            <a class="btn navegar" th:href="@{/menu}">Volver al menú</a>
+            <a class="btn secundario" th:href="@{/consultar-bolsines}">Nueva consulta</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>
