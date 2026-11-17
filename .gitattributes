@@ -1,0 +1,5 @@
+# Los scripts de Linux/Mac siempre con fin de línea LF
+mvnw text eol=lf
+*.sh text eol=lf
+# Los de Windows con CRLF
+*.cmd text eol=crlf
